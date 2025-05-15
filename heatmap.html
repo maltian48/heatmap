@@ -21,7 +21,7 @@
     #cal-heatmap {
       width: 100%;
       height: auto;
-      position: relative; /* This ensures we can position the legend correctly */
+      position: relative; /* Ensure month labels can be added */
     }
 
     .ch-tooltip {
@@ -30,7 +30,7 @@
       border: 1px solid #444 !important;
     }
 
-    /* Add space above blocks for month labels */
+    /* Custom styling for month labels */
     .month-label {
       position: absolute;
       font-size: 12px;
@@ -64,7 +64,6 @@
       margin-right: 5px;
       border-radius: 4px;
     }
-
   </style>
 </head>
 <body>
@@ -88,11 +87,10 @@
     var calendar = new CalHeatMap();
     calendar.init({
       data: datas,
-      start: new Date(new Date().getFullYear(), 0, 1), // Start from January
-      domain: "year",
+      start: new Date(),
+      domain: "month",
       subDomain: "day",
-      range: 1,
-      cellSize: 15,
+      range: 12, // Show 12 months
       legend: [1, 2, 3, 4, 5, 6, 7],
       cellLabel: {
         empty: "No data on {date}",
@@ -103,9 +101,9 @@
         'upper': 'No data available for the selected year'
       },
       legendColors: {
-        empty: '#417882', // Lightest green for lowest count
-        min: '#A1C2B8',   // Light green for lower counts
-        max: '#417882',   // Darkest green for highest count
+        empty: '#80EF80', // Lightest green for lowest count
+        min: '#80EF80',   // Light green for lower counts
+        max: '#006400',   // Dark green for highest count
       },
       considerMissingDataAsZero: true,
       tooltip: true,
@@ -156,11 +154,11 @@
 
       // Create the "Least" label and color box
       var lessLabel = document.createElement("div");
-      lessLabel.innerHTML = "<span class='color-box' style='background-color: #A1C2B8'></span> Least " + minCount;
+      lessLabel.innerHTML = "<span class='color-box' style='background-color: #80EF80'></span> Least " + minCount;
       
       // Create the "Most" label and color box
       var mostLabel = document.createElement("div");
-      mostLabel.innerHTML = "<span class='color-box' style='background-color: #417882'></span> Most " + maxCount;
+      mostLabel.innerHTML = "<span class='color-box' style='background-color: #006400'></span> Most " + maxCount;
 
       // Add labels to the legend
       legend.appendChild(lessLabel);
