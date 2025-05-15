@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Cal-Heatmap Example</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cal-heatmap@4.0.0/dist/cal-heatmap.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/cal-heatmap/3.3.10/cal-heatmap.css" />
   <style>
     body {
       margin: 0;
@@ -20,36 +20,42 @@
   <h2>Detection Frequency Heatmap</h2>
   <div id="cal-heatmap"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/cal-heatmap@4.0.0/dist/cal-heatmap.umd.min.js"></script>
+  <script type="text/javascript" src="//d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="//cdn.jsdelivr.net/cal-heatmap/3.3.10/cal-heatmap.min.js"></script>
   <script>
-    // Generate mock data for the past 90 days
-    const now = new Date();
-    const data = {};
-    for (let i = 0; i < 90; i++) {
-      const date = new Date(now);
-      date.setDate(now.getDate() - i);
-      const timestamp = Math.floor(date.getTime() / 1000); // UNIX seconds
-      data[timestamp] = Math.floor(Math.random() * 10); // 0–9 alerts
+    // Generate dummy data for the entire year
+    var datas = {};
+    var startDate = new Date(new Date().getFullYear(), 0, 1); // Start of the year
+    var endDate = new Date(new Date().getFullYear(), 11, 31); // End of the year
+
+    for (var date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
+        var timestamp = Math.floor(date.getTime() / 1000); // Convert to UNIX timestamp
+        var frequency = Math.floor(Math.random() * 7) + 1; // Random value between 1 and 7
+        datas[timestamp] = frequency; // Assign frequency to the timestamp
     }
 
-    const cal = new CalHeatmap.CalHeatmap();
-    cal.paint({
-      itemSelector: "#cal-heatmap",
-      range: 3, // 3 months
-      domain: "month",
-      subDomain: "day",
-      data: {
-        source: () => Promise.resolve(data), // Inline data as async function
-        type: "json"
+    var calendar = new CalHeatMap();
+    calendar.init({
+      data: datas,
+      start: new Date(new Date().getFullYear(), 0, 1), // Start from January
+      domain: "year", // Set domain to year
+      subDomain: "day", // Set subdomain to day
+      range: 1, // Show 1 year
+      cellSize: 15, // Adjust cell size for compactness
+      legend: [1],
+      cellLabel: {
+        empty: "No data on {date}",
+        filled: "{count} {name} {connector} {date}"
       },
-      scale: {
-        color: {
-          type: "quantize",
-          domain: [0, 10],
-          range: ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"]
-        }
+      legendTitleFormat: {
+        'lower': 'No data available for the selected year',
+        'upper': 'No data available for the selected year'
       },
-      domainLabel: true,
+      legendColors: {
+        empty: '#417882'
+      },
+      considerMissingDataAsZero: true,
+      tooltip: true    
     });
   </script>
 </body>
