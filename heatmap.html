@@ -1,45 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Cal-Heatmap Example</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cal-heatmap@4.0.0/dist/cal-heatmap.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cal-heatmap@4.0.0/dist/cal-heatmap.css">
   <style>
-    body { margin: 0; padding: 0; }
-    #cal-heatmap { padding: 20px; }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      padding: 1rem;
+    }
+    #cal-heatmap {
+      width: 100%;
+      height: auto;
+    }
   </style>
 </head>
 <body>
+  <h2>Detection Frequency Heatmap</h2>
   <div id="cal-heatmap"></div>
-  <script src="https://cdn.jsdelivr.net/npm/cal-heatmap@4.0.0/dist/cal-heatmap.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/cal-heatmap@4.0.0/dist/cal-heatmap.umd.min.js"></script>
   <script>
+    // Generate mock data for the past 90 days
     const now = new Date();
     const data = {};
-
-    // Generate mock data: 1 alert per day for last 90 days
     for (let i = 0; i < 90; i++) {
-      const d = new Date(now);
-      d.setDate(now.getDate() - i);
-      const timestamp = Math.floor(d.getTime() / 1000);
-      data[timestamp] = Math.floor(Math.random() * 10);
+      const date = new Date(now);
+      date.setDate(now.getDate() - i);
+      const timestamp = Math.floor(date.getTime() / 1000); // UNIX seconds
+      data[timestamp] = Math.floor(Math.random() * 10); // 0–9 alerts
     }
 
-    const cal = new CalHeatmap();
+    const cal = new CalHeatmap.CalHeatmap();
     cal.paint({
-      range: 3,
-      domain: 'month',
-      subDomain: 'day',
+      itemSelector: "#cal-heatmap",
+      range: 3, // 3 months
+      domain: "month",
+      subDomain: "day",
       data: {
-        source: data,
-        type: 'json'
+        source: () => Promise.resolve(data), // Inline data as async function
+        type: "json"
       },
       scale: {
         color: {
-          type: 'quantize',
+          type: "quantize",
           domain: [0, 10],
           range: ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"]
         }
-      }
+      },
+      domainLabel: true,
     });
   </script>
 </body>
