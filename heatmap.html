@@ -1,52 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detection Frequency Heatmap</title>
-    <link href="https://cdn.jsdelivr.net/npm/cal-heatmap/dist/cal-heatmap.css" rel="stylesheet"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detection Frequency Heatmap</title>
+  <link href="https://cdn.jsdelivr.net/npm/cal-heatmap/dist/cal-heatmap.css" rel="stylesheet"/>
 </head>
 <body>
+  <h1>Detection Frequency Heatmap</h1>
+  <div id="cal-heatmap" style="margin-top: 20px;"></div>
 
-    <h1>Detection Frequency Heatmap</h1>
-    
-    <!-- Heatmap Container -->
-    <div id="cal-heatmap" style="margin-top: 20px;"></div>
+  <script src="https://cdn.jsdelivr.net/npm/cal-heatmap/dist/cal-heatmap.umd.js"></script>
 
-    <!-- Include Cal-Heatmap Script -->
-    <script src="https://cdn.jsdelivr.net/npm/cal-heatmap/dist/cal-heatmap.min.js"></script>
+  <script>
+    const cal = new CalHeatmap();
 
-    <script>
-        // Sample data - Replace with your own detection frequency data
-        const data = {
-            "2025-01-01": 5,
-            "2025-01-02": 2,
-            "2025-01-03": 3,
-            "2025-01-04": 8,
-            "2025-01-05": 1,
-            "2025-01-06": 4,
-            "2025-01-07": 6
-        };
+    // Sample detection frequency data as Unix timestamps (in seconds)
+    const data = {
+      1735689600: 5, // 2025-01-01
+      1735776000: 3, // 2025-01-02
+      1735862400: 7, // 2025-01-03
+      1735948800: 2, // 2025-01-04
+      1736035200: 9, // 2025-01-05
+    };
 
-        // Initialize Cal-Heatmap
-        const cal = new CalHeatmap();
-        cal.paint({
-            range: 12, // 12 months view
-            domain: "month",  // Calendar view (Month)
-            subDomain: "day", // Daily subdomain
-            data: {
-                source: "json", // Inline JSON data
-                type: "json",
-                x: "date",  // Date field in JSON
-                y: "value"  // Value field (detection count)
-            },
-            start: new Date("2025-01-01"), // Start date of heatmap
-            domainLabelFormat: "%b %Y", // Format for each month (Jan, Feb, etc.)
-            subDomainLabelFormat: "%d", // Format for each day (1, 2, 3, etc.)
-            cellSize: 20, // Size of each calendar cell
-            data: data  // The actual detection data
-        });
-    </script>
-
+    cal.paint({
+      range: 3, // Show 3 months
+      domain: "month",
+      subDomain: "day",
+      start: new Date("2025-01-01"),
+      cellSize: 20,
+      verticalOrientation: true,
+      data: {
+        source: data,
+        type: "json",
+      },
+      scale: {
+        color: {
+          type: "quantize",
+          range: ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"],
+          domain: [0, 10],
+        },
+      },
+    });
+  </script>
 </body>
 </html>
