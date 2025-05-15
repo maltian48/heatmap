@@ -5,65 +5,49 @@
   <title>Cal-Heatmap Example</title>
   <link rel="stylesheet" href="//cdn.jsdelivr.net/cal-heatmap/3.3.10/cal-heatmap.css" />
   <style>
-    html, body {
-      background-color: #000 !important; /* Black background */
-      color: #fff !important;           /* White text */
+    body {
       margin: 0;
-      padding: 1rem;
       font-family: sans-serif;
-      height: 100%;
-    }
-
-    h2 {
-      color: #00d1b2; /* Optional: Highlighted heading */
+      padding: 1rem;
+      background-color: #000; /* Black background */
+      color: #fff; /* White text */
     }
 
     #cal-heatmap {
       width: 100%;
       height: auto;
-      position: relative; /* Ensure month labels can be added */
     }
 
-    .ch-tooltip {
-      background-color: #222 !important;
-      color: #fff !important;
-      border: 1px solid #444 !important;
-    }
-
-    /* Custom styling for month labels */
-    .month-label {
-      position: absolute;
-      font-size: 12px;
-      font-weight: bold;
-      color: #fff;
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 3px 5px;
-      text-align: center;
-      width: 100%;
-    }
-
-    /* Custom positioning for color legend at the bottom right */
-    .color-legend {
+    /* Custom legend style */
+    .cal-heatmap .legend {
       position: absolute;
       bottom: 10px;
-      right: 10px;
+      left: 10px;
       display: flex;
       align-items: center;
-      font-size: 14px;
     }
 
-    .color-legend div {
+    .cal-heatmap .legend .legend-item {
       display: flex;
       align-items: center;
-      margin-left: 10px;
+      margin-right: 10px;
     }
 
-    .color-legend .color-box {
+    .color-box {
       width: 20px;
       height: 20px;
       margin-right: 5px;
       border-radius: 4px;
     }
+
+    /* Custom style for month label */
+    .month-label {
+      font-size: 12px;
+      color: #fff;
+      text-align: center;
+      font-weight: bold;
+    }
+
   </style>
 </head>
 <body>
@@ -79,90 +63,57 @@
     var endDate = new Date(new Date().getFullYear(), 11, 31); // End of the year
 
     for (var date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
-      var timestamp = Math.floor(date.getTime() / 1000); // Convert to UNIX timestamp
-      var frequency = Math.floor(Math.random() * 7) + 1; // Random value between 1 and 7
-      datas[timestamp] = frequency; // Assign frequency to the timestamp
+        var timestamp = Math.floor(date.getTime() / 1000); // Convert to UNIX timestamp
+        var frequency = Math.floor(Math.random() * 7) + 1; // Random value between 1 and 7
+        datas[timestamp] = frequency; // Assign frequency to the timestamp
     }
 
     var calendar = new CalHeatMap();
     calendar.init({
       data: datas,
-      start: new Date(),
-      domain: "month",
-      subDomain: "day",
-      range: 12, // Show 12 months
-      legend: [1, 2, 3, 4, 5, 6, 7],
+      start: new Date(new Date().getFullYear(), 0, 1), // Start from January
+      domain: "year", // Set domain to year
+      subDomain: "day", // Set subdomain to day
+      range: 1, // Show 1 year
+      cellSize: 15, // Adjust cell size for compactness
+      legend: [1],
       cellLabel: {
         empty: "No data on {date}",
-        filled: "{count} detection(s) on {date}"
+        filled: "{count} {name} {connector} {date}"
       },
       legendTitleFormat: {
         'lower': 'No data available for the selected year',
         'upper': 'No data available for the selected year'
       },
       legendColors: {
-        empty: '#80EF80', // Lightest green for lowest count
-        min: '#80EF80',   // Light green for lower counts
-        max: '#006400',   // Dark green for highest count
+        empty: '#80EF80' // Keep this for the light green
       },
       considerMissingDataAsZero: true,
       tooltip: true,
       onComplete: function () {
-        // Add month labels and color legend after the heatmap is rendered
+        // Add the month labels next to the legend
         addMonthLabels();
-        moveLegendAndAddLabels();
       }
     });
 
-    // Function to add month labels
+    // Function to add month labels next to the legend
     function addMonthLabels() {
       var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       
-      // Get all domain elements (the rows)
-      var domainCells = document.querySelectorAll(".cal-heatmap .domain");
-
-      // Loop through the domains and add the month label above each block
-      domainCells.forEach(function (domain, index) {
-        var monthIndex = index % 12; // Get the current month
-        var monthLabel = months[monthIndex];
-
-        // Create the label element
-        var label = document.createElement("div");
-        label.className = "month-label";
-        label.innerText = monthLabel;
-
-        // Place the label on top of the corresponding domain block
-        domain.appendChild(label);
-      });
-    }
-
-    // Function to move the existing legend and add "Least" and "Most"
-    function moveLegendAndAddLabels() {
-      // Move the legend from bottom-left to bottom-right
+      // Select the legend container
       var legend = document.querySelector(".cal-heatmap .legend");
-      if (legend) {
-        legend.style.position = "absolute";
-        legend.style.bottom = "10px";
-        legend.style.right = "10px";
-        legend.style.display = "flex";
-        legend.style.alignItems = "center";
-      }
-
-      // Add "Least" and "Most" labels to the legend
-      var minCount = Math.min(...Object.values(datas));
-      var maxCount = Math.max(...Object.values(datas));
-
-      // Create the "Least" label and color box
-      var lessLabel = document.createElement("div");
-      lessLabel.innerHTML = "<span class='color-box' style='background-color: #80EF80'></span> Least " + minCount;
       
-      // Create the "Most" label and color box
-      var mostLabel = document.createElement("div");
-      mostLabel.innerHTML = "<span class='color-box' style='background-color: #006400'></span> Most " + maxCount;
-
-      // Add labels to the legend
-      legend.appendChild(lessLabel);
-      legend.appendChild(mostLabel);
+      // Loop through and add each month name next to the color legend
+      if (legend) {
+        months.forEach(function(month, index) {
+          var monthLabel = document.createElement("div");
+          monthLabel.className = "month-label";
+          monthLabel.innerText = month;
+          
+          // Append the month label next to the legend
+          legend.appendChild(monthLabel);
+        });
+      }
     }
 
   </script>
