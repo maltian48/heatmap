@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/cal-heatmap/3.3.10/cal-heatmap.css" />
   <style>
     html, body {
-      background-color: #000 !important; /* Force black background */
+      background-color: #000 !important; /* Black background */
       color: #fff !important;           /* White text */
       margin: 0;
       padding: 1rem;
@@ -21,6 +21,7 @@
     #cal-heatmap {
       width: 100%;
       height: auto;
+      position: relative; /* This ensures we can position the legend correctly */
     }
 
     .ch-tooltip {
@@ -28,6 +29,42 @@
       color: #fff !important;
       border: 1px solid #444 !important;
     }
+
+    /* Add space above blocks for month labels */
+    .month-label {
+      position: absolute;
+      font-size: 12px;
+      font-weight: bold;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 3px 5px;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Custom positioning for color legend at the bottom right */
+    .color-legend {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .color-legend div {
+      display: flex;
+      align-items: center;
+      margin-left: 10px;
+    }
+
+    .color-legend .color-box {
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+      border-radius: 4px;
+    }
+
   </style>
 </head>
 <body>
@@ -66,13 +103,67 @@
         'upper': 'No data available for the selected year'
       },
       legendColors: {
-        min: "#0f0",       // Green for low
-        max: "#f00",       // Red for high
-        empty: "#222"      // Dark gray for no data
+        min: "#6ba292",       // Greenish tone for low counts
+        max: "#f00",          // Red for high counts
+        empty: "#222"         // Dark gray for empty cells
       },
       considerMissingDataAsZero: true,
-      tooltip: true
+      tooltip: true,
+      onComplete: function () {
+        // Add month labels and color legend after the heatmap is rendered
+        addMonthLabels();
+        addColorLegend();
+      }
     });
+
+    // Function to add month labels
+    function addMonthLabels() {
+      var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      
+      // Get all domain elements (the rows)
+      var domainCells = document.querySelectorAll(".cal-heatmap .domain");
+
+      // Loop through the domains and add the month label above each block
+      domainCells.forEach(function (domain, index) {
+        var monthIndex = index % 12; // Get the current month
+        var monthLabel = months[monthIndex];
+
+        // Create the label element
+        var label = document.createElement("div");
+        label.className = "month-label";
+        label.innerText = monthLabel;
+
+        // Place the label on top of the corresponding domain block
+        domain.appendChild(label);
+      });
+    }
+
+    // Function to add the custom color legend
+    function addColorLegend() {
+      // Get the minimum and maximum count values from the data
+      var minCount = Math.min(...Object.values(datas));
+      var maxCount = Math.max(...Object.values(datas));
+
+      // Create the color legend container
+      var legendContainer = document.createElement("div");
+      legendContainer.className = "color-legend";
+
+      // Create the "Less" label and color box
+      var lessLabel = document.createElement("div");
+      lessLabel.innerHTML = "<span class='color-box' style='background-color: #6ba292'></span> Less " + minCount;
+      
+      // Create the "Most" label and color box
+      var mostLabel = document.createElement("div");
+      mostLabel.innerHTML = "<span class='color-box' style='background-color: #f00'></span> Most " + maxCount;
+
+      // Append the labels to the container
+      legendContainer.appendChild(lessLabel);
+      legendContainer.appendChild(mostLabel);
+
+      // Append the legend container to the heatmap
+      document.getElementById("cal-heatmap").appendChild(legendContainer);
+    }
+
   </script>
 </body>
 </html>
